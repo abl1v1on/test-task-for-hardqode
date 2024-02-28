@@ -10,6 +10,7 @@ urlpatterns = [
     path('', index, name='home'),
     path('products/', include('products.urls', namespace='product')),
     path('users/', include('users.urls', namespace='user')),
+    path('api/', include('api.urls', namespace='api')),
 ]
 
 
