@@ -20,9 +20,6 @@ class ProductListAPIView(APIView):
 
 
 class LessonsListAPIView(APIView):
-    """
-    Класс представления для получения конкретного объекта из таблицы Product
-    """
     def get(self, request, product_url):
         product = get_object_or_404(Product, slug=product_url)
         
@@ -39,3 +36,5 @@ class LessonsListAPIView(APIView):
                 status=404)
         serializer = LessonSerializer(product.lessons.all(), many=True)
         return Response(serializer.data)
+
+
