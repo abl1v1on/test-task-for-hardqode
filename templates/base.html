@@ -32,20 +32,25 @@
                   <li class="nav-item">
                     <a class="nav-link" href="{% url 'product:product_list' %}">Курсы</a>
                   </li>
-                  <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                      Dropdown
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                      <li><a class="dropdown-item" href="#">Action</a></li>
-                      <li><a class="dropdown-item" href="#">Another action</a></li>
-                      <li><hr class="dropdown-divider"></li>
-                      <li><a class="dropdown-item" href="#">Something else here</a></li>
-                    </ul>
+                  {% comment %} 
+                  Отображаем кнопку "Войти" и "Зарегистрироваться" только если 
+                  пользователь не авторизован, иначе отображаем "Профиль" и "Выйти" 
+                  {% endcomment %}
+                  {% if not request.user.is_authenticated %}
+                  <li class="nav-item">
+                    <a class="nav-link" href="{% url 'user:login' %}" tabindex="-1" aria-disabled="true">Войти</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+                    <a class="nav-link" href="{% url 'user:signup' %}" tabindex="-1" aria-disabled="true">Зарегистрироваться</a>
                   </li>
+                  {% else %}
+                  <li class="nav-item">
+                    <a class="nav-link" href="#" tabindex="-1" aria-disabled="true">Профиль</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="{% url 'user:logout' %}" tabindex="-1" aria-disabled="true">Выйти</a>
+                  </li>
+                  {% endif %}
                 </ul>
                 <form class="d-flex">
                   <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
