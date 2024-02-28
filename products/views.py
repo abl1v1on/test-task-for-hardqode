@@ -1,6 +1,6 @@
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 
-from .models import Product
+from .models import Product, Lesson
 from .utils import get_all_products
 
 
@@ -17,7 +17,13 @@ def index(request):
 def product_detail(request, product_url):
     product = get_object_or_404(Product, slug=product_url)
 
-    
+    if request.method == 'POST':
+        # Проверяем, авторизован ли пользователь
+        if not request.user.is_authenticated:
+            return redirect('user:login')
+        # Обрабатываем нажатие на кнопку "Записаться на курс"
+        if 'buy-product' in request.POST:
+            pass
 
     context = {
         'title': product.product_name,
@@ -46,3 +52,23 @@ def product_list(request):
         'sort_by': sort_by
     }
     return render(request, 'products/product-list.html', context)
+
+
+def lesson(request, product_url):
+    product = get_object_or_404(Product, slug=product_url)
+    current_lesson = request.GET.get('lesson')
+    product_lessons = product.lessons.all()
+    lessons_quantity = product_lessons.count()
+
+    # Проверяем, есть ли параметр current_lesson. Если есть, то переключаемся на выбранный урок
+    if current_lesson:
+        # Если параметр current_lesson больше количества уроков, то перекидываем на страницу информации о курсе
+        if int(current_lesson) > lessons_quantity:
+            return redirect('product:product_detail', product_url=product_url)
+        product_lessons = product_lessons[int(current_lesson) - 1]
+
+    context = {
+        'title': product.product_name,
+        'lessons': product_lessons
+    }
+    return render(request, 'products/lesson.html', context)

@@ -33,7 +33,7 @@ class Lesson(models.Model):
     lesson_name = models.CharField('Название', max_length=120)
     video_content = models.FileField('Видео', upload_to='videos/%Y')
     product = models.ForeignKey(Product, verbose_name='Товар', 
-                                on_delete=models.CASCADE)
+                                on_delete=models.CASCADE, related_name='lessons')
 
     class Meta:
         db_table = 'lesson'

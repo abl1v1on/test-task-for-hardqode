@@ -21,7 +21,10 @@
                     <h2 class="box-title mt-5">Описание</h2>
                     <p>{{ product.description }}</p>
                     <h2 class="mt-5">{{ product.price }} руб.</h2>
-                    <button class="btn btn-success mt-3 btn-rounded">Записаться на курс</button>
+                    <form action="" method="post">
+                        {% csrf_token %}
+                        <button class="btn btn-success mt-3 btn-rounded" name='buy-product'>Записаться на курс</button>
+                    </form>
                     <h3 class="box-title mt-5">Преподаватели</h3>
                     <ul class="list-unstyled">
                         <li><i class="fa fa-check text-success"></i>{{ product.author }} СДЕДАТЬ MANY-TO-MANY, ЧТОБЫ БЫЛО НЕСКОЛЬКО ПРЕПОДОВ</li>
