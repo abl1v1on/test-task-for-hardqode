@@ -31,7 +31,7 @@ class RegisterUserView(CreateView):
         return context
     
     def get_success_url(self):
-        return redirect('user:login')
+        return reverse_lazy('user:login')
 
 
 class UserProfile(DetailView):

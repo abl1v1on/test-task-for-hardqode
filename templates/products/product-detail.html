@@ -21,10 +21,21 @@
                     <h2 class="box-title mt-5">Описание</h2>
                     <p>{{ product.description }}</p>
                     <h2 class="mt-5">{{ product.price }} руб.</h2>
-                    <form action="" method="post">
-                        {% csrf_token %}
-                        <button class="btn btn-success mt-3 btn-rounded" name='buy-product'>Записаться на курс</button>
-                    </form>
+                    
+                    {% if not product.is_published %}
+                        <p style='color: red'>Этот курс ещё не опубликован. Вы сможете начать обучение {{ product.start_date }}!</p>
+                    {% endif %} 
+                    {% if not is_sub %}
+                        <form action="" method="post">
+                            {% csrf_token %}
+                            <button class="btn btn-success mt-3 btn-rounded" name='buy-product'>Записаться на курс</button>
+                        </form>
+                    {% else %}
+                    <button class="btn btn-warning mt-3 btn-rounded" name='buy-product'>Вы уже записаны на этот курс</button><br>
+                        {% if product.is_published %}
+                            <a href='{% url 'product:lesson' product.slug %}'>Перейти к урокам</a>
+                        {% endif %}
+                    {% endif %}
                     <h3 class="box-title mt-5">Преподаватели</h3>
                     <ul class="list-unstyled">
                         <li><i class="fa fa-check text-success"></i>{{ product.author }} СДЕДАТЬ MANY-TO-MANY, ЧТОБЫ БЫЛО НЕСКОЛЬКО ПРЕПОДОВ</li>

@@ -5,6 +5,33 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<h1>{{ lesson }}</h1>
-{{ lessons }}
+    {% comment %} 
+    Если нет параметра current_lesson, то выводится список всех уроков,
+    а иначе на экране появиться выбранный урок
+    {% endcomment %}    
+    {% if not current_lesson %}
+        <h1>{{ title }}, список уроков</h1>
+        <hr>
+        {% for lesson in lessons %}
+            <a href='?lesson={{ forloop.counter }}'><p>{{ lesson }}</p></a>
+        {% endfor %}
+    {% else %}
+    <h2 class='mb-5'>{{ lessons }}</h2>
+    
+    <div>
+        <video id="player" playsinline controls data-poster="">
+            <source src="{{ lessons.video_content.url }}" type="video/mp4" />
+            <!-- Captions are optional -->
+            <track kind="captions" label="English captions" src="#" srclang="en" default />
+        </video>
+        {% if current_lesson|add:1 <= lessons_quantity %}
+            <a href='?lesson={{ current_lesson|add:1 }}' class='btn btn-success w-100 mb-3'>Следующий урок</a><br>
+            {% endif %}
+
+        {% if current_lesson|add:-1 %}
+            <a href='?lesson={{ current_lesson|add:-1 }}' class='btn btn-danger w-100'>Предыдущий урок</a>
+        {% endif %}
+        </div>
+
+    {% endif %}
 {% endblock %}

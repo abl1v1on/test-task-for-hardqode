@@ -12,8 +12,12 @@ class Product(models.Model):
     author = models.ForeignKey(get_user_model(), verbose_name='Автор', 
                                on_delete=models.CASCADE)
     product_cover = models.ImageField('Обложка', upload_to='product_covers/%Y')
-    slug = models.SlugField('URL', max_length=120, unique=True, db_index=True, null=True, blank=True)
-    # max_student_quantity = models.PositiveIntegerField('Максимальное количество студентов', default=0)
+    slug = models.SlugField('URL', max_length=120, unique=True, db_index=True)
+    max_student_quantity = models.PositiveIntegerField(
+        'Максимальное количество студентов в группе',
+        default=5
+    )
+    is_published = models.BooleanField('Опубликован', default=False)
 
     class Meta:
         db_table = 'product'
@@ -47,7 +51,8 @@ class Lesson(models.Model):
 # Модель групп
 class Group(models.Model):
     group_name = models.CharField('Название группы', max_length=120)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Продукт')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, 
+                                verbose_name='Продукт', related_name='group_product')
     students = models.ManyToManyField(get_user_model(), 
                                       verbose_name='Студенты', related_name='group_student')
     

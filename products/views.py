@@ -1,10 +1,12 @@
 from django.shortcuts import get_object_or_404, redirect, render
+from datetime import datetime
 
-from .models import Product, Lesson
-from .utils import get_all_products
+from .models import Product
+from .utils import get_all_products, add_user_in_group, check
 
 
 def index(request):
+    # Получаем все курсы
     products = get_all_products()
     
     context = {
@@ -15,29 +17,34 @@ def index(request):
 
 
 def product_detail(request, product_url):
+    # Получаем объект курса по слагу
     product = get_object_or_404(Product, slug=product_url)
-
+    
     if request.method == 'POST':
         # Проверяем, авторизован ли пользователь
         if not request.user.is_authenticated:
             return redirect('user:login')
         # Обрабатываем нажатие на кнопку "Записаться на курс"
         if 'buy-product' in request.POST:
-            pass
+            # create_group(product)
+            add_user_in_group(product, request.user)
+            return redirect('product:lesson', product_url)
 
     context = {
         'title': product.product_name,
-        'product': product
+        'product': product,
+        'is_sub': check(product, request.user)
     }
     return render(request, 'products/product-detail.html', context)
 
 
 def product_list(request):
+    # Получаем все курсы и сортируем в обратном порядке по id
     products = get_all_products().order_by('-id')
     # Получаем параметр сортировки
     sort_by = request.GET.get('sort_by')
 
-    # Проверяем, есть ли параметр сортировки, и если есть, то сортируем
+    # Проверяем, есть ли параметр сортировки. Если есть, то сортируем по указанному значению
     if sort_by:
         if sort_by == 'price':
             products = products.order_by('price')
@@ -56,6 +63,14 @@ def product_list(request):
 
 def lesson(request, product_url):
     product = get_object_or_404(Product, slug=product_url)
+    """
+    Проверяем параметр is_published 
+    (выключение кнопки не дает гарантии, что кто-то захочет перейти к урокам через ссылку). 
+    Если он равен False, то перекидываем на страницу информации о курсе, а иначе
+    даем пользователю смотреть уроки
+    """
+    if not product.is_published:
+        return redirect('product:product_detail', product_url=product_url)
     current_lesson = request.GET.get('lesson')
     product_lessons = product.lessons.all()
     lessons_quantity = product_lessons.count()
@@ -69,6 +84,8 @@ def lesson(request, product_url):
 
     context = {
         'title': product.product_name,
-        'lessons': product_lessons
+        'lessons': product_lessons,
+        'current_lesson': current_lesson,
+        'lessons_quantity': lessons_quantity
     }
     return render(request, 'products/lesson.html', context)

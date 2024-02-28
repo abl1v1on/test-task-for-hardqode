@@ -54,6 +54,7 @@ class RegisterUserForm(UserCreationForm):
 
     sub_to_newsletter = forms.BooleanField(
         label='Подписаться на рассылку',
+        required=False,
         widget=forms.CheckboxInput(
             attrs={'class': 'form-check-input form-control'}
         )

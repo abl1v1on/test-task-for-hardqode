@@ -31,6 +31,7 @@ class ProductAdmin(admin.ModelAdmin):
 class GroupAdmin(admin.ModelAdmin):
     list_display = ('group_name', 'product')
     list_display_links = ('group_name', )
+    filter_horizontal = ('students', )
 
 
 @admin.register(Lesson)
