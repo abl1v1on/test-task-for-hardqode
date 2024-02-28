@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class='d-flex justify-content-between'>
+    <h1>Все курсы</h1>
+    <select class="select form-select w-25">
+        <option disabled selected>Сортировать по</option>
+        <option {% if sort_by == 'price' %} selected {% endif %} value="?sort_by=price">Цене (мин. - макс.)</option>
+        <option {% if sort_by == '-price' %} selected {% endif %} value="?sort_by=-price">Цене (макс. - мин.)</option>
+        <option {% if sort_by == 'start_date' %} selected {% endif %} value="?sort_by=start_date">Дате проведения</option>
+    </select>
+    {% comment %}
+    Отображаем кнопку сброса фильтров, если был передан параметр sort_by
+    {% endcomment %}
+    {% if sort_by %}
+    <a class='btn btn-dark' href='{% url 'product:product_list' %}'>Сбросить фильтры</a>
+    {% endif %}
+</div>
+<hr>
+<div class="row">
+    {% for product in products %}
+    <div class="col-md-4 mb-5">
+        <div class="card border-5" style="width: 25rem;">
+            {% if product.product_cover %}
+            <img src="{{ product.product_cover.url }}" class="card-img-top">
+            {% else %}
+            <img src="{% static 'img/no_image' %}" class="card-img-top" alt="...">
+            {% endif %}
+            <div class="card-body">
+              <h4 class="card-title">{{ product }}</h4>
+              <p>{{ product.start_date }}</p>
+              <p class="card-text">{{ product.description|truncatechars:150 }}</p>
+              <a href="{{ product.get_absolute_url }}" class="btn btn-dark">Узнать подробнее</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
