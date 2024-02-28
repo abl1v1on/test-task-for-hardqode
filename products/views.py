@@ -1,10 +1,11 @@
 from django.shortcuts import get_object_or_404, render
 
 from .models import Product
+from .utils import get_all_products
 
 
 def index(request):
-    products = Product.objects.all()
+    products = get_all_products()
     
     context = {
         'products': products,
@@ -16,6 +17,8 @@ def index(request):
 def product_detail(request, product_url):
     product = get_object_or_404(Product, slug=product_url)
 
+    
+
     context = {
         'title': product.product_name,
         'product': product
@@ -24,7 +27,7 @@ def product_detail(request, product_url):
 
 
 def product_list(request):
-    products = Product.objects.all().order_by('-id')
+    products = get_all_products().order_by('-id')
     # Получаем параметр сортировки
     sort_by = request.GET.get('sort_by')
 

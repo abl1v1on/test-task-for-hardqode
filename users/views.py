@@ -2,7 +2,8 @@ from django.contrib.auth import logout
 from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.views.generic import CreateView
+from django.contrib.auth import get_user_model
+from django.views.generic import CreateView, DetailView
 
 from .forms import RegisterUserForm, LoginUserForm
 
@@ -31,7 +32,18 @@ class RegisterUserView(CreateView):
     
     def get_success_url(self):
         return redirect('user:login')
-    
+
+
+class UserProfile(DetailView):
+    model = get_user_model()
+    template_name = 'users/profile.html'
+    context_object_name = 'user'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f'Профиль пользователя {self.object.username}'
+        return context
+
 
 def logout_user(request):
     logout(request)
