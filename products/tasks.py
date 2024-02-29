@@ -1,7 +1,9 @@
 from Stepik.celery import app
+from django.core.mail import send_mail
 from datetime import datetime
 import pytz
-from .models import Product
+
+from .models import Product, Lesson
 
 
 """
@@ -28,3 +30,25 @@ def update_is_published():
         if current_date >= product_start_date:
             product.is_published = True
             product.save()
+
+
+"""
+Таск используется в сигнале и будет отправлять письма о новых уроках
+тем пользователям, которые подписаны на курс.
+"""
+@app.task
+def send_mail_about_new_lessons():
+    # Крайний урок
+    lesson = Lesson.objects.all().last()
+
+    # Пробегаемся циклом по всем группам
+    for group in lesson.product.group_product.all():
+        # Пробегаемся циклом по всем студентам группы
+        for user in group.students.all():
+            send_mail(
+                'У вас новый урок',
+                f'У вас новый урок: {lesson.lesson_name}.',
+                'djangoTestTask@yandex.ru',
+                [user.email],
+                fail_silently=False
+            )

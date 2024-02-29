@@ -132,6 +132,17 @@ MEDIA_URL = '/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
+
+
+# smtp
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 465
+EMAIL_HOST_USER = 'djangoTestTask@yandex.ru'
+EMAIL_HOST_PASSWORD = 'sandnngwlguclcgl'
+EMAIL_USE_SSL = True
+
+
 # redis
 REDIS_HOST = '0.0.0.0'
 REDIS_PORT = '6379'
