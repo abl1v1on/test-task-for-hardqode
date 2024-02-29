@@ -8,3 +8,4 @@ from .tasks import send_mail_about_new_lessons
 @receiver(post_save, sender=Lesson)
 def send_mail(sender, instance, created, **kwargs):
     send_mail_about_new_lessons.delay()
+

@@ -66,3 +66,5 @@ def add_user_in_group(product, user):
         то ничего не произойдет.
         """ 
         group.students.add(user)
+
+

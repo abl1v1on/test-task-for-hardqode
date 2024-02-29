@@ -19,9 +19,6 @@ def index(request):
 
 
 def product_detail(request, product_url):
-    """
-    Функция представления страницы курса
-    """
     # Получаем объект курса по слагу
     product = get_object_or_404(Product, slug=product_url)
     

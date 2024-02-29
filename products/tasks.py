@@ -45,10 +45,13 @@ def send_mail_about_new_lessons():
     for group in lesson.product.group_product.all():
         # Пробегаемся циклом по всем студентам группы
         for user in group.students.all():
-            send_mail(
-                'У вас новый урок',
-                f'У вас новый урок: {lesson.lesson_name}.',
-                'djangoTestTask@yandex.ru',
-                [user.email],
-                fail_silently=False
-            )
+            # Проверяем, подписан ли пользователь на рассылку
+            if user.sub_to_newsletter:
+                send_mail(
+                    'У вас новый урок',
+                    f'У вас новый урок: {lesson.lesson_name}.',
+                    'djangoTestTask@yandex.ru',
+                    [user.email],
+                    fail_silently=False
+                )
+
