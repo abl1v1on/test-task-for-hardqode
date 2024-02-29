@@ -1,3 +1,5 @@
+# Тестовое задание
+
 Немного намудрил с объемом проекта, добавил много 'отсебятины', но как сказано в данной мне задаче:
 
 ![alt text](temp/sc1.png)
@@ -121,7 +123,10 @@ Group.objects.create(
 
 ![alt text](temp/sc13.png) 
 
-Здесь нет проверки на то, записан ли уже пользователь на этот курс, так как даже если пользователь нажмет кнопку несколько раз (чего случиться вроде как не может, потому за счет передаваемого в шаблон параметра `is_sub`  мы контролируем состояние кнопки), то ничего не случиться, пользователь не добавиться в ту же группу ещё раз.
+Здесь нет проверки на то, записан ли уже пользователь на этот курс, так как даже если пользователь нажмет кнопку несколько раз (чего случиться вроде как не может, потому за счет передаваемого в шаблон параметра `is_sub`  мы контролируем состояние кнопки), то ничего не случиться, пользователь не добавиться в ту же группу ещё раз. Если `is_sub` равен True, но курс всё ещё не вышел, то на странице продукту пропадет кнопка и появится предупреждающая надпись:
+
+![alt text](temp/sc22.png)
+
 
 Параметр `is_sub` хранит в себе значение либо True, либо False за счет функции `check_subscription`, которая проверяет записан ли пользователь на этот курс или нет:
 
@@ -305,3 +310,182 @@ class ProductSerializer(serializers.ModelSerializer):
 В переменную `students_quantity` записываем кол-во всех пользователей платформы, далее делим кол-во учеников конкретного курса на общее кол-во пользователей и получаем процент приобретения продукта.
 
 Работу всех выше описанных методов можно увидеть по маршруту `api/product-list/`
+
+
+### От себя
+
+Решил привести проект в более работоспособный вид, поэтому от себя добавил некоторые фичи, такие как:
+
+- Авторизация
+
+	![alt text](temp/sc17.png)
+
+	~~~python
+	# users/views.py
+	class LoginUserView(LoginView):
+		form_class = LoginUserForm
+		template_name = 'users/login.html'
+		
+		def get_context_data(self, **kwargs):
+			context = super().get_context_data(**kwargs)
+			context['title'] = 'Авторизация'
+			return context
+
+		def get_success_url(self):
+			return reverse_lazy('home')
+	~~~
+
+
+- Регистрация
+
+	![alt text](temp/sc18.png)
+
+	~~~python
+	# users/views.py
+	class RegisterUserView(CreateView):
+		form_class = RegisterUserForm
+		template_name = 'users/signup.html'
+
+		def get_context_data(self, **kwargs):
+			context = super().get_context_data(**kwargs)
+			context['title'] = 'Регистрация'
+			return context
+
+		def get_success_url(self):
+			return reverse_lazy('user:login')
+	~~~
+
+- Профиль пользователя
+
+	![alt text](temp/sc19.png)
+
+	~~~python
+	# users/views.py
+	class UserProfile(DetailView):
+		model = get_user_model()
+		template_name = 'users/profile.html'
+		context_object_name = 'user'
+
+  
+
+		def get_context_data(self, **kwargs):
+			context = super().get_context_data(**kwargs)
+			context['title'] = f'Профиль пользователя {self.object.username}'
+			return context
+	~~~
+
+- Обновление данных профиля
+
+	![alt text](temp/sc20.png)
+
+	~~~python
+	# users/views.py
+
+	class UpdateProfile(UpdateView):
+		model = get_user_model()
+		template_name = 'users/update-profile.html'
+		form_class = UpdateProfileForm
+
+		def get_context_data(self, **kwargs):
+			context = super().get_context_data(**kwargs)
+			context['title'] = f'Редактирование профиля {self.object.username}'
+			return context
+
+		def get_success_url(self):
+			return reverse_lazy('user:profile', kwargs={'pk': self.object.pk})
+
+		def get(self, request, *args, **kwargs):
+			"""
+			Делаем проверку, чтобы пользователи
+			не могли обратиться к чужому профилю через url
+			"""
+			if request.user.pk == kwargs['pk']:
+				return super().get(request, *args, **kwargs)
+			return redirect('home')
+	~~~
+
+- Страница со списком всех курсов и их сортировкой
+
+	![alt text](temp/sc21.png) 
+
+	~~~python
+	# products/views.py
+	def product_list(request):
+		# Получаем все курсы и сортируем в обратном порядке по id
+		products = get_all_products().order_by('-id')
+		# Получаем параметр сортировки
+		sort_by = request.GET.get('sort_by')
+
+		# Проверяем, есть ли параметр сортировки. Если есть, то сортируем по указанному значению
+		if sort_by:
+			if sort_by == 'price':
+				products = products.order_by('price')
+			elif sort_by == '-price':
+				products = products.order_by('-price')
+			elif sort_by == 'start_date':
+				products = products.order_by('start_date')
+
+		context = {
+			'products': products,
+			'title': 'Список курсов',
+			'sort_by': sort_by
+		}
+
+		return render(request, 'products/product-list.html', context)
+	~~~
+
+- Просмотр уроков курса
+
+	Когда пользователь нажимает на кнопку "Перейти к урокам" (которая появляется на странице продукта и профиля, но только в том случае, если `is_published` продукта True), он переходит на страницу со списком всех уроков этого курса:
+
+	![alt text](temp/sc23.png) 
+
+	За обработку этой странице отвечает контроллер `lesson` в файле `views.py` приложения `products`:
+
+	~~~python
+	# products/views.py
+	def lesson(request, product_url):
+		product = get_object_or_404(Product, slug=product_url)
+		
+		if not product.is_published:
+			return redirect('product:product_detail', product_url=product_url)
+
+		current_lesson = request.GET.get('lesson') # Получаем текущий урок
+		product_lessons = product.lessons.all() # Получаем все уроки конкретного курса
+		lessons_quantity = product_lessons.count() # Кол-во уроков
+		
+		if current_lesson:
+
+			if int(current_lesson) > lessons_quantity:
+				return redirect('product:product_detail', product_url=product_url)
+			product_lessons = product_lessons[int(current_lesson) - 1]
+
+		context = {
+			'title': product.product_name,
+			'lessons': product_lessons,
+			'current_lesson': current_lesson,
+			'lessons_quantity': lessons_quantity
+		}
+
+		return render(request, 'products/lesson.html', context)
+	~~~
+
+	Здесь мы первым делом получаем объект `product` по слагу, далее проверяем параметр `is_published` (выключение кнопки на странице курса не дает гарантии, что кто-нибудь не захочет перейти к урокам через url). Если он равен False, перекидываем на страницу информации о курсе, а иначе даем пользователю смотреть уроки.  Далее мы записываем в переменную `current_lesson` текущий урок, который передается через URL. Затем получаем все уроки этого продукта и количество этих уроков. После происходит проверка, передан ли в пути параметр `lesson`.  Далее ещё одна проверка, если параметр current_lesson больше количества уроков, то перекидываем на страницу информации о курсе. Иначе переопределяем переменную `product_lessons` поместив в неё текущую серию:
+
+	![alt text](temp/sc24.png)
+
+	Кнопки "Следующий урок" и "Предыдущий урок", очевидно, прибавляют к параметру пути `lesson` +1 или -1. Если открыт первый урок, кнопка "Предыдущий урок",  пропадет, если открыт последний урок, то пропадет "Следующий урок".
+
+
+### Docker
+
+Обернул весь проект (с celery, redis и flower) в Docker, все подтягивается само, просто нужно поднять файл `docker-compose.yml`:
+
+~~~terminal
+sudo docker-compose up
+~~~
+
+Перейти на `http://0.0.0.0:1337/`, и на `http://localhost:5555`, если нужно отслеживать работу celery тасков.
+
+
+
