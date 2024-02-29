@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from products.models import Product, Lesson
@@ -11,6 +12,8 @@ class ProductSerializer(serializers.ModelSerializer):
     lessons_quantity = serializers.SerializerMethodField()
     students_quantity = serializers.SerializerMethodField()
     group_occupancy_percentage = serializers.SerializerMethodField()
+    product_purchase_percentage = serializers.SerializerMethodField()
+
 
     # % заполнения всех групп
     def get_group_occupancy_percentage(self, obj):
@@ -33,10 +36,16 @@ class ProductSerializer(serializers.ModelSerializer):
     def get_lessons_quantity(slef, obj):
         return obj.lessons.count()
     
+    # Процент приобретения продукта
+    def get_product_purchase_percentage(self, obj):
+        # Общее кол-во студентов на платформе
+        students_quantity = get_user_model().objects.count()
+        # Делим кол-во учеников конкретного курса на общее кол-во пользователей
+        return self.get_students_quantity(obj) / students_quantity * 100
+    
     class Meta:
         model = Product
         fields = '__all__'
-
 
 
 class LessonSerializer(serializers.ModelSerializer):
