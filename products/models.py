@@ -11,8 +11,7 @@ class Product(models.Model):
     description = models.TextField('Описание')
     start_date = models.DateField('Дата начала')
     price = models.DecimalField('Цена', max_digits=10, decimal_places=2)
-    author = models.ForeignKey(get_user_model(), verbose_name='Автор', 
-                               on_delete=models.CASCADE)
+    author = models.ManyToManyField(get_user_model(), verbose_name='Авторы', related_name='product_author')
     product_cover = models.ImageField('Обложка', upload_to='product_covers/%Y')
     slug = models.SlugField('URL', max_length=120, unique=True, db_index=True)
     max_student_quantity = models.PositiveIntegerField(

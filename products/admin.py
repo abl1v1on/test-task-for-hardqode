@@ -13,10 +13,11 @@ class ProductLessonInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('product_name', 'get_cover', 'start_date', 'price', 'author')
+    list_display = ('product_name', 'get_cover', 'start_date', 'price')
     list_display_links = ('product_name', 'get_cover')
     search_fields = ('product_name', )
     prepopulated_fields = {'slug': ('product_name', )} # Автоматическое заполнение поля slug 
+    filter_horizontal = ('author', )
     inlines = [ProductLessonInline]
 
     @admin.display(description='Обложка')
