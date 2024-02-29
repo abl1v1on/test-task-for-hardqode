@@ -2,8 +2,11 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 
-# Расширяем базовую модель User
+
 class User(AbstractUser):
+    """
+    Расширяем базовую модель User
+    """
     profile_pic = models.ImageField(upload_to='profile_pics/%Y/%m', 
                                     verbose_name='Аватар', null=True, blank=True)
     profile_desc = models.CharField(max_length=700, 

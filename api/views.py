@@ -1,11 +1,10 @@
-from django.shortcuts import get_object_or_404, render
-from rest_framework import generics
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from products.utils import get_all_products
 from .serializers import ProductSerializer, LessonSerializer
-from products.models import Product, Lesson
+from products.models import Product
 
 
 class ProductListAPIView(APIView):
@@ -20,15 +19,17 @@ class ProductListAPIView(APIView):
 
 
 class LessonsListAPIView(APIView):
+    """
+    Класс представления для получения списка всех уроков связанных
+    с конкретным курсом
+    """
     def get(self, request, product_url):
+        # Получаем объект курса по слагу
         product = get_object_or_404(Product, slug=product_url)
         
         """
-        В тз сказанно: 
-        'API с выведением списка уроков по конкретному продукту 
-        к которому пользователь имеет доступ'.
-        Как я понимаю, пользователь имеет доступ только к тем курсам, которые уже вышли,
-        т.е. is_published True
+        Проверяем, есть ли у пользователей доступ к урокам этого курса. Если нет,
+        то возвращаем ошибку. Иначе, возвращаем список уроков
         """
         if not product.is_published:
             return Response(

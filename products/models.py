@@ -3,8 +3,10 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 
-# Модель курсов
 class Product(models.Model):
+    """
+    Модель курсов
+    """
     product_name = models.CharField('Название', max_length=120)
     description = models.TextField('Описание')
     start_date = models.DateField('Дата начала')
@@ -31,9 +33,10 @@ class Product(models.Model):
         return reverse('product:product_detail', kwargs={'product_url': self.slug})
     
     
-
-# Модель уроков
 class Lesson(models.Model):
+    """
+    Модель уроков
+    """
     lesson_name = models.CharField('Название', max_length=120)
     video_content = models.FileField('Видео', upload_to='videos/%Y')
     product = models.ForeignKey(Product, verbose_name='Товар', 
@@ -48,8 +51,10 @@ class Lesson(models.Model):
         return self.lesson_name
 
 
-# Модель групп
 class Group(models.Model):
+    """
+    Модель групп
+    """
     group_name = models.CharField('Название группы', max_length=120)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, 
                                 verbose_name='Продукт', related_name='group_product')

@@ -5,6 +5,9 @@ from django.core.exceptions import ValidationError
 
 
 class LoginUserForm(AuthenticationForm):
+    """
+    Форма авторизации пользователя
+    """
     username = forms.CharField(
         label='Логин', 
         widget=forms.TextInput(
@@ -22,6 +25,9 @@ class LoginUserForm(AuthenticationForm):
 
 
 class RegisterUserForm(UserCreationForm):
+    """
+    Форма регистрации пользователя
+    """
     username = forms.CharField(
         label='Имя пользователя', 
         widget=forms.TextInput(
@@ -73,7 +79,8 @@ class RegisterUserForm(UserCreationForm):
 
     def clean_email(self):
         """
-        Проверяем, существует ли пользователь с таким E-mail
+        Проверяем, существует ли пользователь с таким E-mail.
+        Если да, то отдаем ошибку. Иначе возвращаем E-mail.
         """
         email = self.cleaned_data['email']
         if get_user_model().objects.filter(email=email).exists():
@@ -81,17 +88,20 @@ class RegisterUserForm(UserCreationForm):
         return email
 
 
-# class UpdateProfileForm(forms.ModelForm):
-#     class Meta:
-#         model = get_user_model()
-#         fields = ('username', 'email', 'profile_pic')
+class UpdateProfileForm(forms.ModelForm):
+    """
+    Форма обновления профиля пользователя
+    """
+    class Meta:
+        model = get_user_model()
+        fields = ('username', 'email', 'profile_pic')
 
-#         widgets = {
-#             'username': forms.TextInput(attrs={'class': 'form-control'}),
-#             'email': forms.EmailInput(attrs={'class': 'form-control'}),
-#             # 'profile_pic': forms.FileInput(attrs={'class': 'form-control'})
-#         }
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control form-control-lg'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control form-control-lg'}),
+            'profile_pic': forms.FileInput(attrs={'class': 'form-control'})
+        }
 
-#         labels = {
-#             'profile_pic': ''
-#         }
+        labels = {
+            'profile_pic': ''
+        }

@@ -31,10 +31,9 @@
                             <button class="btn btn-success mt-3 btn-rounded" name='buy-product'>Записаться на курс</button>
                         </form>
                     {% else %}
-                    {% if product.is_published %}
-                        
-                    <a class="btn btn-success mt-3 btn-rounded" href="{% url 'product:lesson' product.slug %}">Перейти к урокам</a><br>
-                    {% endif %}
+                        {% if product.is_published %}
+                            <a class="btn btn-success mt-3 btn-rounded" href="{% url 'product:lesson' product.slug %}">Перейти к урокам</a><br>
+                        {% endif %}
                     {% endif %}
                     <h3 class="box-title mt-5">Преподаватели</h3>
                     <ul class="list-unstyled">

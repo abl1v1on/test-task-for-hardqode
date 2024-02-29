@@ -4,6 +4,10 @@ from products.models import Product, Lesson
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для модели Product. Возвращает все поля,
+    а так же кастомные.
+    """
     lessons_quantity = serializers.SerializerMethodField()
     students_quantity = serializers.SerializerMethodField()
     group_occupancy_percentage = serializers.SerializerMethodField()
@@ -36,6 +40,9 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class LessonSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для модели Lesson. Возвращает все поля
+    """
     class Meta:
         model = Lesson
         fields = '__all__'
