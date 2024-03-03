@@ -405,6 +405,15 @@ class ProductSerializer(serializers.ModelSerializer):
 	~~~
 
 - Страница со списком всех курсов и их сортировкой
+  	Для того, чтобы сделать элементы списка сортировки на странице ссылками пришлось добавить немного JS-a:
+
+  	~~~js
+	(function ($) {
+		$('.select').change(function(){
+		window.location.href = $(this).val();
+		});
+	})(jQuery);
+   	~~~
 
 	![alt text](temp/sc21.png) 
 
